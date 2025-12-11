@@ -7,7 +7,7 @@
 
 - name: Ensure OS hostname matches inventory alias
   ansible.builtin.hostname:
-    name: "{{_inventory hostname_}}"
+    name: "{{ inventory_hostname }}"
 
 - name: Install essential packages
   apt:
