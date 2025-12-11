@@ -1,0 +1,14 @@
+# Ignore everything not explicitly needed for the project
+*
+# UNIGNORE necessary project directories
+!/roles/
+!/roles/**
+!/inventory.ini
+!/ansible.cfg
+!/site.yml
+!/README.md
+
+# Ignore common OS files just in case
+.DS_Store
+*.pyc
+__pycache__/
