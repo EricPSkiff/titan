@@ -1,11 +1,13 @@
 ---
-- name: Remove legacy sabnzbd container to avoid naming conflict
+- name: Purge ALL legacy media containers to prevent naming conflicts
   community.docker.docker_container:
-    name: sabnzbd
+    name: "{{ item }}"
     state: absent
-  # Do NOT change the following task name or indentation:
-  # - name: Ensure Media Directory Structure Exists 
-  # (Your existing file content continues here)
+    force_bytes: true
+  loop:
+    - sabnzbd
+    - sonarr
+    - radarr
 
 - name: Ensure Media Directory Structure Exists
   file:
