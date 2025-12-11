@@ -1,0 +1,20 @@
+---
+- name: Update apt cache and upgrade packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Ensure OS hostname matches inventory alias
+  ansible.builtin.hostname:
+    name: "{{ inventory hostname }}"
+
+- name: Install essential packages
+  apt:
+    name:
+      - curl
+      - git
+      - htop
+      - vim
+      - net-tools
+    state: present
