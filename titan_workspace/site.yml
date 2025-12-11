@@ -1,0 +1,11 @@
+---
+- hosts: defense
+  become: true
+  vars:
+    media_base_path: /opt/titan-media
+
+  roles:
+    - common
+    - security
+    - docker
+    - media
