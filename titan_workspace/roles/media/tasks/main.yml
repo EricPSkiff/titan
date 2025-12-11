@@ -3,7 +3,6 @@
   community.docker.docker_container:
     name: "{{ item }}"
     state: absent
-    force_bytes: true
   loop:
     - sabnzbd
     - sonarr
