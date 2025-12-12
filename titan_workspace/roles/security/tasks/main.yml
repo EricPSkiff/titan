@@ -15,4 +15,14 @@
 - name: Enable UFW Firewall
   ufw:
     state: enabled
-    policy: deny  # Default Deny all incoming
+    policy: deny
+
+- name: Allow Traefik Web and Dashboard
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - '80'
+    - '443'
+    - '8080'

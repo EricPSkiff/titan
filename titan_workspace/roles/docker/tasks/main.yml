@@ -32,3 +32,8 @@
     name: docker
     state: started
     enabled: yes
+
+- name: Create Shared Media Network
+  community.docker.docker_network:
+    name: media_net
+    driver: bridge

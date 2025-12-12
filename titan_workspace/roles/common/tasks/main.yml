@@ -18,3 +18,15 @@
       - vim
       - net-tools
     state: present
+
+- name: Remove conflicting web servers
+  apt:
+    name:
+      - apache2
+      - nginx
+    state: absent
+    purge: yes
+
+- name: Ensure Port 80 is free
+  shell: "fuser -k 80/tcp || true"
+  ignore_errors: yes

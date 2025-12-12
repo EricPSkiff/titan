@@ -1,11 +1,12 @@
 ---
-- hosts: defense
+- name: Provision Titan Defense Infrastructure
+  hosts: defense
   become: true
-  vars:
-    media_base_path: /opt/titan-media
+  # Vars are auto-loaded from group_vars/defense.yml
 
   roles:
-    - common
-    - security
-    - docker
-    - media
+    - { role: common, tags: ['common'] }
+    - { role: security, tags: ['security'] }
+    - { role: docker, tags: ['docker'] }
+    - { role: media, tags: ['media'] }
+    - { role: proxy, tags: ['proxy'] }
