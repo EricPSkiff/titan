@@ -1,13 +1,4 @@
 ---
-- name: Purge ALL legacy media containers to prevent naming conflicts
-  community.docker.docker_container:
-    name: "{{ item }}"
-    state: absent
-  loop:
-    - sabnzbd
-    - sonarr
-    - radarr
-
 - name: Ensure Media Directory Structure Exists
   file:
     path: "{{ item }}"
