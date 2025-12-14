@@ -15,6 +15,11 @@ services:
     ports:
       - 8989:8989
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.local`)"
+      - "traefik.http.routers.sonarr.entrypoints=web"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
 
   radarr:
     image: linuxserver/radarr:latest
@@ -32,6 +37,11 @@ services:
     ports:
       - 7878:7878
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.local`)"
+      - "traefik.http.routers.radarr.entrypoints=web"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
 
   sabnzbd:
     image: linuxserver/sabnzbd:latest
@@ -48,6 +58,11 @@ services:
     ports:
       - 8085:8080
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.local`)"
+      - "traefik.http.routers.sabnzbd.entrypoints=web"
+      - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080"
 
 networks:
   media_net:
