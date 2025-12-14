@@ -1,0 +1,44 @@
+---
+- name: Create Configuration Directory
+  file:
+    path: "{{ deploy_root }}/observability/config"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Create Data Directories (Permission Fix)
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: '0755'
+  loop:
+    - { path: "{{ deploy_root }}/observability/prometheus_data", owner: "65534", group: "65534" } # Prometheus User
+    - { path: "{{ deploy_root }}/observability/grafana_data", owner: "472", group: "472" }       # Grafana User
+
+- name: Deploy Prometheus Config
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ deploy_root }}/observability/config/prometheus.yml"
+    owner: "65534"
+    group: "65534"
+    mode: '0644'
+  notify: Restart Monitoring Stack
+
+- name: Deploy Monitoring Docker Compose
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ deploy_root }}/observability/docker-compose.yml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+  notify: Restart Monitoring Stack
+
+- name: Ensure Monitoring Stack is Running
+  community.docker.docker_compose_v2:
+    project_src: "{{ deploy_root }}/observability"
+    state: present
+    pull: always
+    remove_orphans: yes

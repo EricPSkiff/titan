@@ -1,0 +1,41 @@
+---
+# TITAN MASTER PLAYBOOK
+# SDE V7.0 Operational Standard
+
+- name: Provision Blue Team Defense Node
+  hosts: defense
+  become: true
+  vars_files:
+    - group_vars/defense.yml
+  roles:
+    - role: common
+      tags: ['common', 'base']
+
+    - role: security
+      tags: ['security', 'hardening']
+
+    - role: docker
+      tags: ['docker', 'engine']
+
+    - role: proxy
+      tags: ['proxy', 'traefik']
+
+    - role: suricata_nids
+      tags: ['nids', 'suricata']
+
+    - role: media
+      tags: ['media', 'stack']
+
+    # NEWLY ADDED: Phase 4
+    - role: observability
+      tags: ['observability', 'monitoring']
+
+- name: Provision Red Team Attack Platform
+  hosts: attack_platform
+  become: true
+  roles:
+    - role: common
+      tags: ['common', 'base']
+
+    - role: attack_base
+      tags: ['attack', 'kali']

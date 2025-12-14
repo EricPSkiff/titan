@@ -1,0 +1,3 @@
+---
+deploy_root: /opt/titan-stack
+ansible_user: titanadmin

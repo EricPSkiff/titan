@@ -1,0 +1,28 @@
+---
+- name: Install UFW and Fail2Ban
+  apt:
+    name:
+      - ufw
+      - fail2ban
+    state: present
+
+- name: Allow SSH (Port 22)
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+
+- name: Enable UFW Firewall
+  ufw:
+    state: enabled
+    policy: deny
+
+- name: Allow Traefik Web and Dashboard
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - '80'
+    - '443'
+    - '8080'
