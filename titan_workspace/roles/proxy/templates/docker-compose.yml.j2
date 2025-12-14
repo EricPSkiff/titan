@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "8080:8080" # The Dashboard
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - {{ proxy_config_path }}/traefik.yml:/etc/traefik/traefik.yml:ro
+    networks:
+      - media_net
+    environment:
+      - DOCKER_API_VERSION=1.44
+
+networks:
+  media_net:
+    external: true
