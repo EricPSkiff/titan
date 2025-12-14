@@ -28,11 +28,7 @@ services:
       - SSL_KEY=/etc/ssl/filebeat.key
       - API_USERNAME=wazuh-wui
       - API_PASSWORD=MyS3cr37P450r.*-
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
-    deploy:
-      resources:
-        limits:
-          memory: 1g
+
     volumes:
       - wazuh_api_configuration:/var/ossec/api/configuration
       - wazuh_etc:/var/ossec/etc
@@ -58,6 +54,10 @@ services:
       - "9200:9200"
     environment:
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    deploy:
+      resources:
+        limits:
+          memory: 1g
     ulimits:
       memlock:
         soft: -1
