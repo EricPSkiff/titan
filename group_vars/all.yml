@@ -1,0 +1,16 @@
+---
+# --- GLOBAL NETWORK SCHEMA (VLAN MAP) ---
+# Target IDs for future VLAN implementation
+mgmt_vlan_id: 10
+tribe_vlan_id: 20
+iot_vlan_id: 30
+vault_vlan_id: 40
+
+# Subnet Definitions (Target State)
+vault_subnet: "10.0.40.0/24"
+vault_gateway: "10.0.40.1"
+
+# MIGRATION CONTROL
+# Set to 'false' until physical VLANs are configured on the Switch
+vlan_segmentation_active: false
+current_internal_domain: "local.vault"

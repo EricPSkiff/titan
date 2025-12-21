@@ -1,0 +1,3 @@
+---
+# Host-specific networking for the Attack Node
+target_ip: 10.0.40.50

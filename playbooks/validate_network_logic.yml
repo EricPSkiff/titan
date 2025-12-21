@@ -1,0 +1,26 @@
+---
+- name: Network Architecture Validation
+  hosts: titan-core-01
+  gather_facts: false
+  vars:
+    # Pulling the global toggle
+    mode: "{{ 'VLAN_MODE' if vlan_segmentation_active else 'LEGACY_MODE' }}"
+
+  tasks:
+    - name: "[GOVERNOR] Check Operational Mode"
+      debug:
+        msg: "System is operating in {{ mode }}. Target IP is {{ current_ip }}"
+
+    - name: "[LOGIC CHECK] Verify Legacy Safety"
+      fail:
+        msg: "CRITICAL: VLAN mode is OFF but Target IP is set to Vault range!"
+      when: 
+        - not vlan_segmentation_active
+        - "'10.0.40' in current_ip"
+
+    - name: "[CONNECTIVITY] Ping Target"
+      ping:
+
+    - name: "[SUCCESS] Architecture Validated"
+      debug:
+        msg: "Logic Gate Passed. ready for {{ mode }} operations."
