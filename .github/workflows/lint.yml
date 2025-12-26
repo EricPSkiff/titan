@@ -23,7 +23,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install ansible ansible-lint
 
+      - name: Neutralize Vault (Mock Secrets)
+        run: |
+          # 1. Create a dummy password file to satisfy ansible.cfg
+          echo 'dummy_password' > .vault_pass
+          
+          # 2. Replace the encrypted file with a dummy unencrypted one
+          # (This prevents decryption errors during syntax check)
+          rm group_vars/defense.yml
+          echo 'secret_key: mocked_value' > group_vars/defense.yml
+
       - name: Run Ansible Lint
         run: |
-          # Running lint on the site.yml and roles directory
-          ansible-lint site.yml roles/
+          # Running lint on site.yml and roles
+          # We force color output for better readability in logs
+          ansible-lint --force-color site.yml roles/
