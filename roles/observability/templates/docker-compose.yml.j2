@@ -12,6 +12,8 @@ services:
     user: "65534:65534"
     volumes:
       - {{ deploy_root }}/observability/config/prometheus.yml:/etc/prometheus/prometheus.yml
+      # NEW: Mount the Alert Rules
+      - {{ deploy_root }}/observability/config/alerts.yml:/etc/prometheus/alerts.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -26,11 +28,30 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.vault.local`)"
       - "traefik.http.routers.prometheus.entrypoints=web"
-      # EXPLICIT PORT DEFINITION
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
-      # MIDDLEWARE
       - "traefik.http.middlewares.prom-auth.basicauth.users={{ traefik_auth }}"
       - "traefik.http.routers.prometheus.middlewares=prom-auth"
+
+  # NEW SERVICE: THE DISPATCHER
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    restart: unless-stopped
+    volumes:
+      - {{ deploy_root }}/observability/config/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - {{ deploy_root }}/observability/config/discord.tmpl:/etc/alertmanager/templates/discord.tmpl
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    networks:
+      - vault_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.alertmanager.rule=Host(`alertmanager.vault.local`)"
+      - "traefik.http.routers.alertmanager.entrypoints=web"
+      - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
+      - "traefik.http.middlewares.prom-auth.basicauth.users={{ traefik_auth }}"
+      - "traefik.http.routers.alertmanager.middlewares=prom-auth"
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -77,22 +98,12 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.vault.local`)"
       - "traefik.http.routers.grafana.entrypoints=web"
-      # EXPLICIT PORT DEFINITION
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-      # MIDDLEWARE
       - "traefik.http.middlewares.grafana-auth.basicauth.users={{ traefik_auth }}"
       - "traefik.http.routers.grafana.middlewares=grafana-auth"
 
 volumes:
   prometheus_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: {{ deploy_root }}/observability/prometheus_data
   grafana_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: {{ deploy_root }}/observability/grafana_data
