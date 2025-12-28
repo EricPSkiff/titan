@@ -41,4 +41,5 @@ jobs:
 
       - name: Run Ansible Lint
         run: |
-      ansible-lint --force-color site.yml workstation.yml roles/
+          # The command below is now correctly indented
+          ansible-lint --force-color site.yml workstation.yml roles/
