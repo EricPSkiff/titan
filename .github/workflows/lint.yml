@@ -22,19 +22,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install ansible ansible-lint
+          # CRITICAL FIX: Install the Docker collection so linter recognizes the modules
+          ansible-galaxy collection install community.docker
 
       - name: Neutralize Vault (Mock Secrets)
         run: |
-          # 1. Create a dummy password file to satisfy ansible.cfg
+          # 1. Create a dummy password file
           echo 'dummy_password' > .vault_pass
           
-          # 2. Replace the encrypted file with a dummy unencrypted one
-          # (This prevents decryption errors during syntax check)
-          rm group_vars/defense.yml
+          # 2. Mock defense.yml (The original secret file)
+          rm -f group_vars/defense.yml
           echo 'secret_key: mocked_value' > group_vars/defense.yml
+          
+          # 3. Mock all.yml (The NEW secret file)
+          # We must replace the encrypted file with plain text for the linter
+          rm -f group_vars/all.yml
+          echo 'my_global_var: mocked_value' > group_vars/all.yml
 
       - name: Run Ansible Lint
         run: |
-          # Running lint on site.yml and roles
-          # We force color output for better readability in logs
           ansible-lint --force-color site.yml roles/
