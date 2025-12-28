@@ -41,4 +41,4 @@ jobs:
 
       - name: Run Ansible Lint
         run: |
-          ansible-lint --force-color site.yml roles/
+      ansible-lint --force-color site.yml workstation.yml roles/
