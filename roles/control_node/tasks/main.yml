@@ -1,21 +1,22 @@
 ---
-- name: "STEP 1: WEAPONRY - Install Core CLI & Virtualization Tools"
+- name: "STEP 1: WEAPONRY - Install Core CLI, Virtualization & Ansible Deps"
   ansible.builtin.dnf:
     name:
-      - zoxide        # Smart navigation
-      - fzf           # Fuzzy finder
-      - eza           # High-density ls replacement
-      - bat           # Cat with wings (syntax highlighting)
-      - neovim        # Editor of choice
+      - zoxide
+      - fzf
+      - eza
+      - bat
+      - neovim
       - docker-ce
       - docker-ce-cli
       - containerd.io
       - docker-buildx-plugin
       - docker-compose-plugin
-      - libvirt       # KVM Management
-      - virt-manager  # KVM GUI
-      - timeshift     # Resilience/Snapshots
-      - keepassxc     # Offline AES-256 Sovereignty
+      - libvirt
+      - virt-manager
+      - timeshift
+      - keepassxc
+      - python3-libvirt  # REQUIRED: Dependency for community.libvirt module
     state: present
     update_cache: yes
   tags: [core, packages]
@@ -50,7 +51,7 @@
     zone: public
     state: enabled
     permanent: yes
-    target: DROP  # The "Black Hole" strategy
+    target: DROP
   notify: Restart Firewalld
   tags: [security, firewall]
 
@@ -60,3 +61,35 @@
     scope: global
     value: "true"
   tags: [security, identity]
+
+# --- PHASE 7 INTEGRATION STARTS HERE ---
+
+- name: "STEP 5: THUNDERDOME - Deploy Network Definition XML"
+  ansible.builtin.template:
+    src: thunderdome.xml.j2
+    dest: /tmp/thunderdome.xml
+    mode: '0644'
+  tags: [network, thunderdome]
+
+- name: "STEP 5.1: THUNDERDOME - Define Network Structure"
+  community.libvirt.virt_net:
+    name: thunderdome-bridge
+    state: present
+    xml: '{{ lookup("file", "/tmp/thunderdome.xml") }}'
+  tags: [network, thunderdome]
+
+- name: "STEP 5.2: THUNDERDOME - Ignite and Autostart"
+  community.libvirt.virt_net:
+    name: thunderdome-bridge
+    state: active
+    autostart: yes
+  tags: [network, thunderdome]
+
+- name: "STEP 6: AIRLOCK - Block Thunderdome from Family LAN"
+  ansible.posix.firewalld:
+    rich_rule: 'rule family="ipv4" source address="172.16.99.0/24" destination address="192.168.1.0/24" drop'
+    zone: libvirt
+    permanent: yes
+    state: enabled
+  notify: Restart Firewalld
+  tags: [security, isolation]
