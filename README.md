@@ -1,46 +1,66 @@
 # Titan Infrastructure
 
 **Status:** ACTIVE
-**Phase:** 7 (Network Isolation & Thunderdome Deployment)
-**Method:** Ansible (IaC) + Libvirt + Firewalld
-**Target Node:** Control Node (Hypervisor - Fedora)
+**Phase:** 7.5 (Full Stack Integration & Observability Remediation)
+**Method:** Ansible (IaC) + Libvirt + Firewalld + GitHub Actions
+**Architectural Goal:** Sacrifice efficiency to ensure the Daughter's successful launch.
 
 ## 1. Operational Overview
-**Titan Infrastructure** is the Master Source of Truth for the Titan Cyber Range. This ecosystem has transitioned into a hybrid management platform, automating the **Reactor Core** (Synology VMM) and the **Control Node** (Local Hypervisor). 
+**Titan Infrastructure** serves as the "Master Source of Truth" for a hardened, distributed cyber environment. This ecosystem automates the lifecycle of two distinct operational tiers:
+1.  **The Reactor Core:** A high-availability defense stack hosted on Synology VMM.
+2.  **The Control Node:** A local Fedora-based hypervisor utilized for "Thunderdome" (Attack/Isolation) operations.
 
-Phase 7 successfully established the **Thunderdome Bridge**, an isolated software-defined network for offensive operations.
+## 2. Global Architecture & Security Stack
+The project enforces **Structural Honesty** through deep-tier isolation and automated hardening:
+* **Infrastructure:** Distributed compute across Synology VMM and Local KVM/Libvirt.
+* **Airlock Security:** Software-defined "Kill Zone" (`172.16.99.0/24`) for offensive operations, physically segregated from the Family LAN via Firewalld Rich Rules.
+* **Secret Governance:** 100% of credentials (Traefik, DBs, Internal IPs) are encrypted via **Ansible Vault (AES256)** within `group_vars/all.yml` and `defense.yml`.
+* **CI/CD Pipeline:** GitHub Actions automate YAML linting and logic validation on every push to `main`.
+* **Observability:** Traefik-managed ingress with Uptime Kuma and Gotify alerting.
 
-## 2. Architecture & Stack
-* **Infrastructure:** Synology VMM (Defense) + Fedora Libvirt/KVM (Control/Attack).
-* **Network Isolation:** Thunderdome Bridge (`virbr1`) operating at `172.16.99.0/24`.
-* **Security:** Firewalld "Airlock" Rich Rules enforcing a total DROP policy between Thunderdome and the Family LAN.
-* **DNS Strategy:** Decommissioned local BIND; hardwired to Cloudflare (1.1.1.1) to resolve Port 53 contention.
+## 3. Project Structure (Expansive)
+The repository is segmented into modular roles to allow for node-specific or global provisioning:
 
-## 3. Project Structure
 ~~~text
 .
-├── .github/workflows/      # CI/CD Validation
-├── roles/
-│   ├── control_node/       # Hypervisor & Security Bridge logic
-│   │   ├── templates/      # Jinja2 XML for Thunderdome
-│   │   └── handlers/       # Firewalld state management
-│   ├── workstation_core/   # Local environment automation
-│   └── security/           # Server-side NIDS & Hardening
-├── docs/                   # Red Team After-Action Reports (AAR)
-└── site.yml                # Entry point
+├── .github/workflows/      # Automated CI/CD (YAML/Ansible Linting)
+├── docs/                   # Sanitized Network Maps & Red Team AARs
+├── group_vars/             # Encrypted Global and Stack-specific secrets
+├── host_vars/              # Target-specific overrides (e.g., kali_node, titan-core-01)
+├── playbooks/              # High-level logic validation
+├── scripts/                # V3 Backup & Cold Storage exfiltration logic
+├── roles/                  # Functional Modules
+│   ├── workstation_core/   # Local Fedora Control Node Hardening
+│   ├── control_node/       # Thunderdome Bridge & Libvirt Provisioning
+│   ├── security/           # NIC Offload persistence & NIDS Deployment
+│   ├── observability/      # Grafana/Prometheus IaC Provisioning
+│   ├── attack_base/        # Kali Linux Red Team Toolset
+│   └── proxy/              # Traefik Ingress & Middleware
+└── site.yml                # Main Orchestration Entry Point
 ~~~
 
-## 4. Security Perimeter (The Airlock)
-The system enforces a strict isolation policy:
-* **Source:** `172.16.99.0/24` (Thunderdome)
-* **Destination:** `192.168.1.0/24` (Family LAN)
-* **Action:** `DROP`
+## 4. Phase-Specific Status
+| Phase | Focus | Status |
+| :--- | :--- | :--- |
+| **5** | Hardening & Optimization | **COMPLETE** |
+| **6** | Control Node & CI/CD | **STABLE** |
+| **7** | Thunderdome Network Isolation | **ACTIVE** |
+| **8** | Observability Remediation | **IN-PROGRESS** |
 
-## 5. Usage
-**Deploy Isolated Network Infrastructure:**
+## 5. Deployment Protocols
+**Provisioning the Entire Range:**
 ~~~bash
-ansible-playbook -i inventory.ini site.yml -l workstation --tags network --ask-vault-pass
+ansible-playbook -i inventory.ini site.yml --ask-vault-pass
 ~~~
 
-## 6. License
-MIT License - Copyright (c) 2025 Titan Architecture
+**Targeting the Control Node (Workstation):**
+~~~bash
+ansible-playbook -i inventory.ini site.yml -l workstation --ask-vault-pass
+~~~
+
+## 6. Known Issues & Remediation
+* **Docker API Mismatch:** Forced `DOCKER_API_VERSION=1.45` in proxy configs to maintain compatibility with modern engines.
+* **HSTS Redirection:** SSL currently managed via manual HTTP overrides; `mkcert` hardening is the next operational objective.
+
+## 7. License
+MIT License - Copyright (c) 2025-2026 Titan Architecture
