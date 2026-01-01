@@ -18,8 +18,8 @@ receivers:
   discord_configs:
   - webhook_url: '{{ discord_webhook_url }}'
     send_resolved: true
-    title: '{{ template "discord.title" . }}'
-    message: '{{ template "discord.message" . }}'
+    title: '{% raw %}{{ template "discord.title" . }}{% endraw %}'
+    message: '{% raw %}{{ template "discord.message" . }}{% endraw %}'
 
 templates:
   - '/etc/alertmanager/templates/*.tmpl'
